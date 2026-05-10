@@ -2,94 +2,98 @@
 
 probe_dir := $(objtree)/probe
 
-tool_info_item := cc cc_id cc_version cc_name ld ld_id ld_version ld_name \
-		  cc_features ld_features
-tool_info_dir := $(probe_dir)/tool
-tool_info_dump := $(addprefix $(tool_info_dir)/,$(tool_info_item))
+bootstrap_targets := $(probe_dir)/tool/cc \
+		     $(probe_dir)/tool/cc_id \
+		     $(probe_dir)/tool/cc_version \
+		     $(probe_dir)/tool/cc_name \
+		     $(probe_dir)/tool/ld \
+		     $(probe_dir)/tool/ld_id \
+		     $(probe_dir)/tool/ld_version \
+		     $(probe_dir)/tool/ld_name \
+		     $(probe_dir)/tool/cc_features \
+		     $(probe_dir)/tool/ld_features \
+		     $(probe_dir)/repo/name \
+		     $(probe_dir)/repo/version \
+		     $(probe_dir)/host/id \
+		     $(probe_dir)/host/arch \
+		     $(probe_dir)/host/name
 
-repo_info_item := name version
-repo_info_dir := $(probe_dir)/repo
-repo_info_dump := $(addprefix $(repo_info_dir)/,$(repo_info_item))
-
-host_info_item := id arch name
-host_info_dir := $(probe_dir)/host
-host_info_dump := $(addprefix $(host_info_dir)/,$(host_info_item))
-
-bootstrap_targets := $(repo_info_dump) $(host_info_dump) $(tool_info_dump)
 meta_targets += $(bootstrap_targets)
 
 bootstrap: $(bootstrap_targets)
 
-include/gen/build.h: $(repo_info_dump) $(host_info_dump)
+include/gen/build.h: $(probe_dir)/repo/name $(probe_dir)/repo/version \
+		     $(probe_dir)/host/id $(probe_dir)/host/arch \
+		     $(probe_dir)/host/name
 	mkdir -p $(@D)
 	printf '%s\n' $^ | ./scripts/gen-build_h.sh -e s,[^/]\\+/repo,repo, >$@
 
-include/gen/features.h: $(tool_info_dir)/cc_features \
-			$(tool_info_dir)/ld_features
+include/gen/features.h: $(probe_dir)/tool/cc_features \
+			$(probe_dir)/tool/ld_features
 	mkdir -p $(@D)
 	cat $^ | ./scripts/gen-features_h.sh >$@
 
-$(repo_info_dir)/name:
+$(probe_dir)/repo/name:
 	mkdir -p $(@D)
 	printf '%s\n' $(name) >$@
 
-$(repo_info_dir)/version:
+$(probe_dir)/repo/version:
 	mkdir -p $(@D)
 	printf '%s\n' $(version) >$@
 
-$(host_info_dir)/id:
+$(probe_dir)/host/id:
 	mkdir -p $(@D)
 	python3 -c 'import sys; print(sys.platform)' >$@
 
-$(host_info_dir)/arch:
+$(probe_dir)/host/arch:
 	mkdir -p $(@D)
 	python3 -c 'import platform; print(platform.machine())' >$@
 
-$(host_info_dir)/name:
+$(probe_dir)/host/name:
 	mkdir -p $(@D)
 	python3 -c 'import platform; print(platform.system())' >$@
 
-$(tool_info_dir)/cc: $(tool_info_dir)/cc_dump
+$(probe_dir)/tool/cc: $(probe_dir)/tool/cc_dump
 	cut -f1 $< >$@
 
-$(tool_info_dir)/cc_id: $(tool_info_dir)/cc_dump
+$(probe_dir)/tool/cc_id: $(probe_dir)/tool/cc_dump
 	cut -f2 $< >$@
 
-$(tool_info_dir)/cc_version: $(tool_info_dir)/cc_dump
+$(probe_dir)/tool/cc_version: $(probe_dir)/tool/cc_dump
 	cut -f3 $< >$@
 
-$(tool_info_dir)/cc_name: $(tool_info_dir)/cc_dump
+$(probe_dir)/tool/cc_name: $(probe_dir)/tool/cc_dump
 	cut -f4 $< >$@
 
-$(tool_info_dir)/cc_dump: $(tool_info_dir)/dump
+$(probe_dir)/tool/cc_dump: $(probe_dir)/tool/dump
 	sed -n 1p $< >$@
 
-$(tool_info_dir)/cc_features:
+$(probe_dir)/tool/cc_features:
 
-$(tool_info_dir)/ld: $(tool_info_dir)/ld_dump
+$(probe_dir)/tool/ld: $(probe_dir)/tool/ld_dump
 	cut -f1 $< >$@
 
-$(tool_info_dir)/ld_id: $(tool_info_dir)/ld_dump
+$(probe_dir)/tool/ld_id: $(probe_dir)/tool/ld_dump
 	cut -f2 $< >$@
 
-$(tool_info_dir)/ld_version: $(tool_info_dir)/ld_dump
+$(probe_dir)/tool/ld_version: $(probe_dir)/tool/ld_dump
 	cut -f3 $< >$@
 
-$(tool_info_dir)/ld_name: $(tool_info_dir)/ld_dump
+$(probe_dir)/tool/ld_name: $(probe_dir)/tool/ld_dump
 	cut -f4 $< >$@
 
-$(tool_info_dir)/ld_dump: $(tool_info_dir)/dump
+$(probe_dir)/tool/ld_dump: $(probe_dir)/tool/dump
 	sed -n 2p $< >$@
 
-$(tool_info_dir)/ld_features: $(tool_info_dir)/cc $(tool_info_dir)/ld_id
+$(probe_dir)/tool/ld_features: $(probe_dir)/tool/cc $(probe_dir)/tool/ld_id
 
-$(tool_info_dir)/dump:
+$(probe_dir)/tool/dump:
 	mkdir -p $(@D)
 	trap 'rm -f .tmp-$$$$' EXIT && \
 	./scripts/probe-tools.sh >.tmp-$$$$ && \
 	mv .tmp-$$$$ $@
 
-$(tool_info_dir)/%_features: $(tool_info_dir)/%
+$(probe_dir)/tool/%_features: $(probe_dir)/tool/%
 	trap 'rm -f .tmp-$$$$' EXIT && \
 	./scripts/probe-$*-features.sh $$(cat $(filter-out %.sh,$^)) | \
 	sort >.tmp-$$$$ && \

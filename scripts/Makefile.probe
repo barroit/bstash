@@ -1,16 +1,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+probe_dir := $(objtree)/probe
+
 tool_info_item := cc cc_id cc_version cc_name ld ld_id ld_version ld_name \
 		  cc_features ld_features
-tool_info_dir := $(objtree)/tool
+tool_info_dir := $(probe_dir)/tool
 tool_info_dump := $(addprefix $(tool_info_dir)/,$(tool_info_item))
 
 repo_info_item := name version
-repo_info_dir := $(objtree)/repo
+repo_info_dir := $(probe_dir)/repo
 repo_info_dump := $(addprefix $(repo_info_dir)/,$(repo_info_item))
 
 host_info_item := id arch name
-host_info_dir := $(objtree)/host
+host_info_dir := $(probe_dir)/host
 host_info_dump := $(addprefix $(host_info_dir)/,$(host_info_item))
 
 bootstrap: $(repo_info_dump) $(host_info_dump) $(tool_info_dump)

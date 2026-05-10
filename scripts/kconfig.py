@@ -4,9 +4,9 @@ from os import environ
 
 objtree = environ['OBJTREE']
 
-repo_info_dir = f"{objtree}/repo"
-host_info_dir = f"{objtree}/host"
-tool_info_dir = f"{objtree}/tool"
+repo_info_dir = f"{objtree}/probe/repo"
+host_info_dir = f"{objtree}/probe/host"
+tool_info_dir = f"{objtree}/probe/tool"
 
 format_feature = lambda line: line.split('=')[0]
 

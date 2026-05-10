@@ -2,16 +2,16 @@
 
 probe_dir := $(objtree)/probe
 
-bootstrap_targets := $(probe_dir)/tool/cc \
-		     $(probe_dir)/tool/cc_id \
-		     $(probe_dir)/tool/cc_version \
-		     $(probe_dir)/tool/cc_name \
-		     $(probe_dir)/tool/ld \
-		     $(probe_dir)/tool/ld_id \
-		     $(probe_dir)/tool/ld_version \
-		     $(probe_dir)/tool/ld_name \
-		     $(probe_dir)/tool/cc_features \
-		     $(probe_dir)/tool/ld_features \
+bootstrap_targets := $(probe_dir)/cc/program \
+		     $(probe_dir)/cc/id \
+		     $(probe_dir)/cc/version \
+		     $(probe_dir)/cc/name \
+		     $(probe_dir)/cc/features \
+		     $(probe_dir)/ld/program \
+		     $(probe_dir)/ld/id \
+		     $(probe_dir)/ld/version \
+		     $(probe_dir)/ld/name \
+		     $(probe_dir)/ld/features \
 		     $(probe_dir)/repo/name \
 		     $(probe_dir)/repo/version \
 		     $(probe_dir)/host/id \
@@ -28,8 +28,7 @@ include/gen/build.h: $(probe_dir)/repo/name $(probe_dir)/repo/version \
 	mkdir -p $(@D)
 	printf '%s\n' $^ | ./scripts/gen-build_h.sh -e s,[^/]\\+/repo,repo, >$@
 
-include/gen/features.h: $(probe_dir)/tool/cc_features \
-			$(probe_dir)/tool/ld_features
+include/gen/features.h: $(probe_dir)/cc/features $(probe_dir)/ld/features
 	mkdir -p $(@D)
 	cat $^ | ./scripts/gen-features_h.sh >$@
 
@@ -53,48 +52,51 @@ $(probe_dir)/host/name:
 	mkdir -p $(@D)
 	python3 -c 'import platform; print(platform.system())' >$@
 
-$(probe_dir)/tool/cc: $(probe_dir)/tool/cc_dump
+$(probe_dir)/cc/program: $(probe_dir)/cc/.dump
 	cut -f1 $< >$@
 
-$(probe_dir)/tool/cc_id: $(probe_dir)/tool/cc_dump
+$(probe_dir)/cc/id: $(probe_dir)/cc/.dump
 	cut -f2 $< >$@
 
-$(probe_dir)/tool/cc_version: $(probe_dir)/tool/cc_dump
+$(probe_dir)/cc/version: $(probe_dir)/cc/.dump
 	cut -f3 $< >$@
 
-$(probe_dir)/tool/cc_name: $(probe_dir)/tool/cc_dump
+$(probe_dir)/cc/name: $(probe_dir)/cc/.dump
 	cut -f4 $< >$@
 
-$(probe_dir)/tool/cc_dump: $(probe_dir)/tool/dump
+$(probe_dir)/cc/.dump: $(probe_dir)/tools
+	mkdir -p $(@D)
 	sed -n 1p $< >$@
 
-$(probe_dir)/tool/cc_features:
+$(probe_dir)/cc/features:
 
-$(probe_dir)/tool/ld: $(probe_dir)/tool/ld_dump
+$(probe_dir)/ld/program: $(probe_dir)/ld/.dump
 	cut -f1 $< >$@
 
-$(probe_dir)/tool/ld_id: $(probe_dir)/tool/ld_dump
+$(probe_dir)/ld/id: $(probe_dir)/ld/.dump
 	cut -f2 $< >$@
 
-$(probe_dir)/tool/ld_version: $(probe_dir)/tool/ld_dump
+$(probe_dir)/ld/version: $(probe_dir)/ld/.dump
 	cut -f3 $< >$@
 
-$(probe_dir)/tool/ld_name: $(probe_dir)/tool/ld_dump
+$(probe_dir)/ld/name: $(probe_dir)/ld/.dump
 	cut -f4 $< >$@
 
-$(probe_dir)/tool/ld_dump: $(probe_dir)/tool/dump
+$(probe_dir)/ld/.dump: $(probe_dir)/tools
+	mkdir -p $(@D)
 	sed -n 2p $< >$@
 
-$(probe_dir)/tool/ld_features: $(probe_dir)/tool/cc $(probe_dir)/tool/ld_id
+$(probe_dir)/ld/features: $(probe_dir)/cc/program $(probe_dir)/ld/id
 
-$(probe_dir)/tool/dump:
+$(probe_dir)/tools:
 	mkdir -p $(@D)
 	trap 'rm -f .tmp-$$$$' EXIT && \
 	./scripts/probe-tools.sh >.tmp-$$$$ && \
 	mv .tmp-$$$$ $@
 
-$(probe_dir)/tool/%_features: $(probe_dir)/tool/%
+$(probe_dir)/%/features: $(probe_dir)/%/program
 	trap 'rm -f .tmp-$$$$' EXIT && \
-	./scripts/probe-$*-features.sh $$(cat $(filter-out %.sh,$^)) | \
+	./scripts/probe-$*-features.sh $$(cat $^) | \
 	sort >.tmp-$$$$ && \
-	test -f $@ && diff .tmp-$$$$ $@ >/dev/null || mv .tmp-$$$$ $@
+	test -f $@ && diff .tmp-$$$$ $@ >/dev/null || \
+	{ mv .tmp-$$$$ $@ && touch $@; }

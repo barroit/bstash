@@ -12,8 +12,8 @@ def read_features(filename):
 
 objtree = environ['OBJTREE']
 
-cc_features = read_features(f"{objtree}/probe/tool/cc_features")
-ld_features = read_features(f"{objtree}/probe/tool/ld_features")
+cc_features = read_features(f"{objtree}/probe/cc/features")
+ld_features = read_features(f"{objtree}/probe/ld/features")
 
 def first_line(file):
 	file = open(file, 'r')

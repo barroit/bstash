@@ -22,21 +22,21 @@ include scripts/Makefile.kconfig
 ifneq ($(filter-out $(meta_free_targets),$(or $(MAKECMDGOALS),miku)),)
   # We're compiling/linking.
 
-  include $(probe_dir)/tool/cc_features
-  include $(probe_dir)/tool/ld_features
+  include $(probe_dir)/cc/features
+  include $(probe_dir)/ld/features
   include $(kconfig_dir)/deps/auto.conf
 
   # At this point, the probe results and configurations must already have been
   # populated.
   ifneq ($(wildcard $(kconfig_dir)/dump),)
-    CC != cat $(probe_dir)/tool/cc
-    LD != cat $(probe_dir)/tool/ld_id
+    CC != cat $(probe_dir)/cc/program
+    LD != cat $(probe_dir)/ld/id
 
     UNIX != test $$(cat $(probe_dir)/host/id) != win32 && printf y
     WIN32 != test $$(cat $(probe_dir)/host/id) = win32 && printf y
 
-    USE_GCC != test $$(cat $(probe_dir)/tool/cc_id) = gcc && printf y
-    USE_CLANG != test $$(cat $(probe_dir)/tool/cc_id) = clang && printf y
+    USE_GCC != test $$(cat $(probe_dir)/cc/id) = gcc && printf y
+    USE_CLANG != test $$(cat $(probe_dir)/cc/id) = clang && printf y
   endif
 endif
 

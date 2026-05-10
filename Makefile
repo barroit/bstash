@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-name := stash
+name := bstash
 version := 0.0.0
 
 ifneq ($(filter extra-prereqs,$(.FEATURES)),extra-prereqs)
@@ -77,7 +77,7 @@ link-$(WIN32) := $(addsuffix .lib,$(link-src))
 
 obj-y := $(main-obj) $(cmd-obj) $(lib-obj)
 
-cmd-y := $(addprefix $(objtree)/stash-,$(notdir $(basename $(cmd-obj))))
+cmd-y := $(addprefix $(objtree)/bstash-,$(notdir $(basename $(cmd-obj))))
 
 ifneq ($(CONFIG_ENABLE_TEST),)
   include scripts/Makefile.unitest
@@ -93,9 +93,9 @@ $(objtree)/$(name): $(obj-y) $(link-y)
 
 $(cmd-y):
 
-$(filter-out stash-version stash-help,$(cmd-y)): $(link-y)
+$(filter-out bstash-version bstash-help,$(cmd-y)): $(link-y)
 
-$(objtree)/stash-%: $(objtree)/cmd/main_%.o $(objtree)/cmd/%.o $(lib-obj)
+$(objtree)/bstash-%: $(objtree)/cmd/main_%.o $(objtree)/cmd/%.o $(lib-obj)
 	$(CC) $(LDFLAGS) -fuse-ld=$(LD) $^ -o $@
 
 cmd/main_%.c:

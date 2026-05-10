@@ -15,7 +15,10 @@ host_info_item := id arch name
 host_info_dir := $(probe_dir)/host
 host_info_dump := $(addprefix $(host_info_dir)/,$(host_info_item))
 
-bootstrap: $(repo_info_dump) $(host_info_dump) $(tool_info_dump)
+bootstrap_targets := $(repo_info_dump) $(host_info_dump) $(tool_info_dump)
+meta_targets += $(bootstrap_targets)
+
+bootstrap: $(bootstrap_targets)
 
 include/gen/build.h: $(repo_info_dump) $(host_info_dump)
 	mkdir -p $(@D)

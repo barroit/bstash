@@ -13,15 +13,14 @@ objtree := build
 
 $(objtree)/$(name):
 
-# probe repo info, host info, cc/ld program, cc/ld features -> kconfig
+meta_targets := bootstrap menuconfig test
+meta_free_targets = $(meta_targets) clean distclean
+
 include scripts/Makefile.probe
 include scripts/Makefile.kconfig
 
-off_build_targets := bootstrap menuconfig clean distclean \
-		     $(repo_info_dump) $(host_info_dump) $(tool_info_dump)
-
-ifneq ($(filter-out $(off_build_targets),$(or $(MAKECMDGOALS),miku)),)
-  # The following are environments for compiling/linking.
+ifneq ($(filter-out $(meta_free_targets),$(or $(MAKECMDGOALS),miku)),)
+  # We're compiling/linking.
 
   include $(tool_info_dir)/cc_features
   include $(tool_info_dir)/ld_features

@@ -31,7 +31,8 @@ while read cc ld; do
 	ld=$($scripts/which.py $ld) || continue
 
 	$scripts/probe-cc.sh $cc >.tmp-$$ || continue
-	$scripts/probe-ld.sh $ld $cc >>.tmp-$$ || continue
+	$scripts/probe-ld.sh $ld $(awk '{ print $1 " " $2 }' .tmp-$$) \
+			     >>.tmp-$$ || continue
 
 	cat .tmp-$$
 	exit

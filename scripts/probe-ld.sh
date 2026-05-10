@@ -3,21 +3,27 @@
 
 set -e
 
-ld=$1
-cc=$2
-id=$(printf $ld | sed 's,.\+/ld\.\([^/.]\+\).*,\1,')
+program=$1
+id=$(printf $program | sed 's,.\+/ld\.\([^/.]\+\).*,\1,')
+
+cc_program=$2
+cc_id=$3
 
 trap 'rm -f .tmp-$$*' EXIT
 
-$cc -x c -c -o .tmp-$$.o - <<EOF
+$cc_program -x c -c -o .tmp-$$.o - <<EOF
 int main() { return 0; }
 EOF
 
-$cc --ld-path=$ld -fuse-ld=$id -Wl,-v \
-    -o .tmp-$$.bin .tmp-$$.o >.tmp-$$.out 2>&1 ||
-$cc -B$(dirname $ld) -fuse-ld=$id -Wl,-v \
-    -o .tmp-$$.bin .tmp-$$.o >.tmp-$$.out 2>/dev/null ||
-exit 1
+case $cc_id in
+gcc)
+	$cc_program -B$(dirname $program) -fuse-ld=$id -Wl,-v \
+		    -o .tmp-$$.bin .tmp-$$.o >.tmp-$$.out 2>/dev/null || exit 1
+	;;
+clang)
+	$cc_program --ld-path=$program -fuse-ld=$id -Wl,-v \
+		    -o .tmp-$$.bin .tmp-$$.o >.tmp-$$.out 2>&1 || exit 1
+esac
 
 head -1 .tmp-$$.out >.tmp-$$
 test -s .tmp-$$ || exit 1
@@ -50,4 +56,4 @@ EOF
 
 version=$(( $major * 1000 + $minor ))
 
-printf '%s\t%s\t%s\t%s\n' $ld $id $version $name
+printf '%s\t%s\t%s\t%s\n' $program $id $version $name

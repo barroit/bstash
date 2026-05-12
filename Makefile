@@ -131,8 +131,7 @@ build/commands: .force
 .PHONY: clean distclean
 
 distclean: clean
-	rm -rf build
-	rmdir include/gen
+	rm -rf build include/gen
 
 clean:
 	test -d $(objtree) && \

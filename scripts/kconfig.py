@@ -10,17 +10,17 @@ def read_features(filename):
 	file.close()
 	return set(features)
 
-objtree = environ['OBJTREE']
-
-cc_features = read_features(f"{objtree}/probe/cc/features")
-ld_features = read_features(f"{objtree}/probe/ld/features")
-
-def first_line(file):
-	file = open(file, 'r')
+def first_line(filename):
+	file = open(filename, 'r')
 	line = file.readline().rstrip()
 
 	file.close()
 	return line
+
+objtree = environ['OBJTREE']
+
+cc_features = read_features(f"{objtree}/probe/cc/features")
+ld_features = read_features(f"{objtree}/probe/ld/features")
 
 def warn_off(kconf, name):
 	kconf.warn = False

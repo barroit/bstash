@@ -27,8 +27,8 @@ clang	ld.lld
 EOF
 
 while read cc ld; do
-	cc=$($scripts/which.py $cc) || continue
-	ld=$($scripts/which.py $ld) || continue
+	cc=$(command -v $cc) || continue
+	ld=$(command -v $ld) || continue
 
 	$scripts/probe-cc.sh $cc >.tmp-$$ || continue
 	$scripts/probe-ld.sh $ld $(awk '{ print $1 " " $2 }' .tmp-$$) \

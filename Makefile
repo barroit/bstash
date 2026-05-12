@@ -13,34 +13,27 @@ objtree := build
 
 $(objtree)/$(name):
 
-meta_targets := bootstrap menuconfig test
-meta_free_targets = $(meta_targets) clean distclean
-
 include scripts/Makefile.probe
 include scripts/Makefile.kconfig
 
-ifeq ($(or $(findstring q,$(firstword $(MAKEFLAGS))), \
-	   $(findstring p,$(firstword $(MAKEFLAGS)))),)
-  ifneq ($(filter-out $(meta_free_targets),$(or $(MAKECMDGOALS),miku)),)
-    # We're compiling/linking.
+ifeq ($(or $(or $(findstring q,$(firstword $(MAKEFLAGS))), \
+		$(findstring p,$(firstword $(MAKEFLAGS)))), \
+	   $(filter clean distclean bootstrap menuconfig \
+		    $(kconfig_dir)/% $(probe_dir)/%,$(MAKECMDGOALS)),),)
+  # We're compiling/linking.
 
-    include $(probe_dir)/cc/features
-    include $(probe_dir)/ld/features
-    include $(kconfig_dir)/deps/auto.conf
+  include $(probe_dir)/cc/features
+  include $(probe_dir)/ld/features
+  include $(kconfig_dir)/deps/auto.conf
 
-    # At this point, the probe results and configurations must already have been
-    # populated.
-    ifneq ($(wildcard $(kconfig_dir)/dump),)
-      CC != cat $(probe_dir)/cc/program
-      LD != cat $(probe_dir)/ld/id
+  CC != cat $(probe_dir)/cc/program
+  LD != cat $(probe_dir)/ld/id
 
-      UNIX != test $$(cat $(probe_dir)/host/id) != win32 && printf y
-      WIN32 != test $$(cat $(probe_dir)/host/id) = win32 && printf y
+  UNIX != test $$(cat $(probe_dir)/host/id) != win32 && printf y
+  WIN32 != test $$(cat $(probe_dir)/host/id) = win32 && printf y
 
-      USE_GCC != test $$(cat $(probe_dir)/cc/id) = gcc && printf y
-      USE_CLANG != test $$(cat $(probe_dir)/cc/id) = clang && printf y
-    endif
-  endif
+  USE_GCC != test $$(cat $(probe_dir)/cc/id) = gcc && printf y
+  USE_CLANG != test $$(cat $(probe_dir)/cc/id) = clang && printf y
 endif
 
 include scripts/Makefile.flags

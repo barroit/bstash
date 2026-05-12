@@ -2,25 +2,21 @@
 
 probe_dir := $(objtree)/probe
 
-bootstrap_targets := $(probe_dir)/cc/program \
-		     $(probe_dir)/cc/id \
-		     $(probe_dir)/cc/version \
-		     $(probe_dir)/cc/name \
-		     $(probe_dir)/cc/features \
-		     $(probe_dir)/ld/program \
-		     $(probe_dir)/ld/id \
-		     $(probe_dir)/ld/version \
-		     $(probe_dir)/ld/name \
-		     $(probe_dir)/ld/features \
-		     $(probe_dir)/repo/name \
-		     $(probe_dir)/repo/version \
-		     $(probe_dir)/host/id \
-		     $(probe_dir)/host/arch \
-		     $(probe_dir)/host/name
-
-meta_targets += $(bootstrap_targets)
-
-bootstrap: $(bootstrap_targets)
+bootstrap: $(probe_dir)/cc/program \
+	   $(probe_dir)/cc/id \
+	   $(probe_dir)/cc/version \
+	   $(probe_dir)/cc/name \
+	   $(probe_dir)/cc/features \
+	   $(probe_dir)/ld/program \
+	   $(probe_dir)/ld/id \
+	   $(probe_dir)/ld/version \
+	   $(probe_dir)/ld/name \
+	   $(probe_dir)/ld/features \
+	   $(probe_dir)/repo/name \
+	   $(probe_dir)/repo/version \
+	   $(probe_dir)/host/id \
+	   $(probe_dir)/host/arch \
+	   $(probe_dir)/host/name
 
 include/gen/build.h: $(probe_dir)/repo/name $(probe_dir)/repo/version \
 		     $(probe_dir)/host/id $(probe_dir)/host/arch \

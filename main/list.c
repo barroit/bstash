@@ -3,7 +3,10 @@
  * Copyright 2026 Jiamu Sun <39@barroit.sh>
  */
 
-int cmd_help(int argc, const char **argv)
+#include <stdio.h>
+
+int cmd_main_list(int argc, const char **argv)
 {
+	puts(*argv);
 	return 0;
 }

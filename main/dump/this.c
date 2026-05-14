@@ -3,7 +3,10 @@
  * Copyright 2026 Jiamu Sun <39@barroit.sh>
  */
 
-int cmd_search(int argc, const char **argv)
+#include <stdio.h>
+
+int cmd_dump_this(int argc, const char **argv)
 {
+	puts(*argv);
 	return 0;
 }

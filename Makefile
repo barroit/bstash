@@ -11,7 +11,7 @@ MAKEFLAGS += -rR
 
 objtree := build
 
-$(objtree)/$(name):
+$(objtree)/$(name)/main/entry:
 
 include scripts/Makefile.probe
 include scripts/Makefile.kconfig
@@ -25,6 +25,7 @@ ifeq ($(or $(or $(findstring q,$(firstword $(MAKEFLAGS))), \
   include $(probe_dir)/cc/features
   include $(probe_dir)/ld/features
   include $(kconfig_dir)/deps/auto.conf
+  include $(objtree)/cmdtree
 
   CC != cat $(probe_dir)/cc/program
   LD != cat $(probe_dir)/ld/id
@@ -38,61 +39,32 @@ endif
 
 include scripts/Makefile.flags
 
-lib-src := sqlite/build/sqlite3.c \
-	   lib/atexit.c \
-	   lib/err.c \
-	   lib/list.c \
-	   lib/log.c \
-	   lib/parse_argv.c \
-	   lib/rio.c \
-	   lib/strbuf.c \
-	   lib/xalloc.c
+lib-y := $(objtree)/sqlite/build/sqlite3.o \
+	 $(objtree)/lib/atexit.o \
+	 $(objtree)/lib/err.o \
+	 $(objtree)/lib/list.o \
+	 $(objtree)/lib/log.o \
+	 $(objtree)/lib/parse_argv.o \
+	 $(objtree)/lib/rio.o \
+	 $(objtree)/lib/strbuf.o \
+	 $(objtree)/lib/xalloc.o
 
 ifeq ($(CC_HAS_REALLOCARRAY),)
-  lib-src += lib/reallocarray.c
+  lib-y += $(objtree)/lib/reallocarray.o
 endif
 
-cmd-src := cmd/add.c \
-	   cmd/help.c \
-	   cmd/search.c \
-	   cmd/version.c
+link-$(UNIX) := openssl/build/libcrypto.a
+link-$(WIN32) := openssl/build/libcrypto.lib
 
-main-src := main.c commands.c
-
-link-src := openssl/build/libcrypto
-
-main-obj := $(addprefix $(objtree)/,$(main-src:.c=.o))
-cmd-obj := $(addprefix $(objtree)/,$(cmd-src:.c=.o))
-lib-obj := $(addprefix $(objtree)/,$(lib-src:.c=.o))
-
-link-$(UNIX) := $(addsuffix .a,$(link-src))
-link-$(WIN32) := $(addsuffix .lib,$(link-src))
-
-obj-y := $(main-obj) $(cmd-obj) $(lib-obj)
-
-cmd-y := $(addprefix $(objtree)/bstash-,$(notdir $(basename $(cmd-obj))))
+include scripts/Makefile.command
 
 ifneq ($(CONFIG_ENABLE_TEST),)
   include scripts/Makefile.unitest
   include scripts/Makefile.cmdtest
 endif
 
-.PNONY: commands
-
-commands: $(objtree)/$(name) $(cmd-y)
-
-$(objtree)/$(name): $(obj-y) $(link-y)
-	$(CC) $(LDFLAGS) -fuse-ld=$(LD) $^ -o $@
-
-$(cmd-y):
-
-$(filter-out bstash-version bstash-help,$(cmd-y)): $(link-y)
-
-$(objtree)/bstash-%: $(objtree)/cmd/main_%.o $(objtree)/cmd/%.o $(lib-obj)
-	$(CC) $(LDFLAGS) -fuse-ld=$(LD) $^ -o $@
-
-cmd/main_%.c:
-	./scripts/gen-command-entry.sh $* >$@
+$(objtree)/$(name): $(objtree)/$(name)/main/entry
+	cp $< $@
 
 $(objtree)/sqlite/build/sqlite3.o: sqlite/build/sqlite3.c
 	mkdir -p $(@D)
@@ -102,41 +74,29 @@ sqlite/build/sqlite3.c openssl/build/libcrypto.a openssl/build/libcrypto.lib:
 	$(error No $@ found. \
 		Run 'scripts/build-$(firstword $(subst /, ,$@)).sh' first)
 
-$(objtree)/main.o $(cmd-obj): $(objtree)/commands.o
-
-$(cmd-obj) $(objtree)/commands.o: include/gen/commands.h
-
-$(objtree)/%.o: %.c include/gen/build.h \
-		include/gen/config.h include/gen/features.h
+$(objtree)/%.o: %.c \
+		include/gen/build.h \
+		include/gen/config.h \
+		include/gen/features.h
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(addprefix -include ,$(filter include/gen/%,$^)) \
 	      -c $< -o $@
 
--include $(obj-y:.o=.d)
+%_entry.c: %.c
+	./scripts/gen-command-entry.sh $(shell printf '%s' $* | tr / _ ) >$@
 
-commands.c: build/commands
-	printf '%s\n' $(notdir $(cmd-src)) | ./scripts/gen-commands_c.sh >$@
-
-include/gen/commands.h: build/commands
-	mkdir -p $(@D)
-	printf '%s\n' $(notdir $(cmd-src)) | ./scripts/gen-commands_h.sh >$@
-
-build/commands: .force
-	@trap 'rm -f .tmp-$$$$' EXIT && \
-	printf '%s\n' $(cmd-src) | sort >.tmp-$$$$ && \
-	test -f $@ && diff .tmp-$$$$ $@ >/dev/null || mv .tmp-$$$$ $@
+-include $(lib-y:.o=.d)
 
 .force:
 
 .PHONY: clean distclean
 
 distclean: clean
-	rm -rf build include/gen
+	rm -rf build include/gen include/main
 
 clean:
-	test -d $(objtree) && \
 	find $(objtree) \( -name '*.o' -o -name '*.d' \) ! -name sqlite3.o \
-			-exec rm {} + || true
-	rm -f commands.c include/gen/*.h \
-	      $(objtree)/commands $(objtree)/$(name) $(objtree)/$(name)-* \
-	      $(objtree)/unitest/*
+			-exec rm {} + 2>/dev/null || true
+	find include/main include/gen -type f -exec rm {} + 2>/dev/null || true
+	rm -f $(objtree)/commands $(objtree)/unitest/*
+	rm -rf $(objtree)/$(name)

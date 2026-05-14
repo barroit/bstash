@@ -8,7 +8,13 @@
 
 #include "parse_argv.h"
 
-int parse_argv(int argc, const char **argv, unsigned int stop_mode)
+/*
+build/bstash --opt_a=aaa cmd_a --opt_b bbb \
+	     -a -b 39 -abxyz miku -ab"xyz negi" miku
+ */
+
+int pa_parse_args(int argc, const char **argv,
+		  struct pa_opt *opts, unsigned int flag)
 {
 	const char **next = argv;
 

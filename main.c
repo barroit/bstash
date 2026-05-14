@@ -5,13 +5,19 @@
 
 #include "atexit.h"
 #include "err.h"
+#include "main/d.h"
 #include "parse_argv.h"
+#include "stdio.h"
 
-int main(int argc, const char **argv)
+int cmd_main(int argc, const char **argv)
 {
+	// struct pa_opt opts[] = {
+	// 	{  }
+	// }
 	atexit_setup();
 
-	argc = parse_argv(argc, argv, STOP_AT_ARGUMENT);
+	// argc = pa_parse_args(argc, argv, , PA_STOP_BARE);
+	puts(argv[0]);
 
 	return 0;
 }

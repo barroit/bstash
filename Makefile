@@ -80,7 +80,7 @@ $(objtree)/%.o: %.c \
 	$(CC) $(CFLAGS) $(addprefix -include ,$(filter include/gen/%,$^)) \
 	      -c $< -o $@
 
-%_entry.c: %.c
+%_entry.c: | %.c
 	./scripts/gen-command-entry.sh $(basename $(*F)) >$@
 
 -include $(lib-y:.o=.d)

@@ -11,10 +11,14 @@ menuconfig: bootstrap
 	mkdir -p $(kconfig_dir)
 	MENUCONFIG_STYLE=aquatic $(kconfiglib)/menuconfig.py
 
-$(kconfig_dir)/deps/auto.conf include/gen/config.h: $(kconfig_dir)/dump
+include/gen/config.h: $(kconfig_dir)/dump
+	mkdir -p include/gen
+	$(kconfiglib)/genconfig.py --header-path include/gen/config.h
+
+$(kconfig_dir)/deps/auto.conf: $(kconfig_dir)/dump
 	mkdir -p include/gen
 	$(kconfiglib)/genconfig.py --sync-deps $(kconfig_dir)/deps \
-				   --header-path include/gen/config.h
+				   --header-path /dev/null
 
 $(kconfig_dir)/dump:
 	$(error No .config found. Run 'make menuconfig' first)

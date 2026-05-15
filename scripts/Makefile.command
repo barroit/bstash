@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-$(objtree)/$(name)/%/entry: $(lib-y) $(objtree)/cmdtree
+$(objtree)/$(name)/%/entry: $(lib-y) $(link-y)
 	mkdir -p $(@D)
-	$(CC) $(LDFLAGS) -fuse-ld=$(LD) $(filter %.o,$^) -o $@
+	$(CC) $(LDFLAGS) -fuse-ld=$(LD) $(filter %.o %.a %.lib,$^) -o $@
 
 include/%/d.h:
 	mkdir -p $(@D)

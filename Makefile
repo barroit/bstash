@@ -19,6 +19,7 @@ include scripts/Makefile.kconfig
 ifeq ($(or $(or $(findstring q,$(firstword $(MAKEFLAGS))), \
 		$(findstring p,$(firstword $(MAKEFLAGS)))), \
 	   $(filter clean distclean bootstrap menuconfig \
+		    include/gen/% include/main/% \
 		    $(kconfig_dir)/% $(probe_dir)/%,$(MAKECMDGOALS)),),)
   # We're compiling/linking.
 
@@ -99,5 +100,5 @@ clean:
 	find $(objtree) \( -name '*.o' -o -name '*.d' \) ! -name sqlite3.o \
 			-exec rm {} + 2>/dev/null || true
 	find include/main include/gen -type f -exec rm {} + 2>/dev/null || true
-	rm -f $(objtree)/commands $(objtree)/unitest/*
+	rm -f $(objtree)/.commands $(objtree)/cmdtree $(objtree)/unitest/*
 	rm -rf $(objtree)/$(name)

@@ -55,8 +55,8 @@ ifeq ($(CC_HAS_REALLOCARRAY),)
   lib-y += $(objtree)/lib/reallocarray.o
 endif
 
-link-$(UNIX) := openssl/build/libcrypto.a
-link-$(WIN32) := openssl/build/libcrypto.lib
+link-$(UNIX) := $(objtree)/openssl/libcrypto.a
+link-$(WIN32) := $(objtree)/openssl/libcrypto.lib
 
 include scripts/Makefile.command
 
@@ -71,6 +71,10 @@ $(objtree)/$(name): $(objtree)/command/main/entry
 $(objtree)/sqlite/build/sqlite3.o: sqlite/build/sqlite3.c
 	mkdir -p $(@D)
 	$(CC) -O3 -w -c $< -o $@
+
+$(objtree)/openssl/libcrypto.%: openssl/build/libcrypto.%
+	mkdir -p $(@D)
+	ln $< $@
 
 sqlite/build/sqlite3.c openssl/build/libcrypto.a openssl/build/libcrypto.lib:
 	$(error No $@ found. \
@@ -99,9 +103,9 @@ distclean: clean
 
 clean:
 	{ \
-		find $(objtree) \
+		find $(objtree)/lib $(objtree)/command \
 		     \( -name '*.o' -o -name '*.d' -o -name 'entry' \) \
-		     ! -name sqlite3.o -exec rm {} + ; \
+		     -exec rm {} + ; \
 		find include/command include/gen -type f -exec rm {} + ; \
 		find command -name '*_entry.c' -exec rm {} + ; \
 	} 2>/dev/null

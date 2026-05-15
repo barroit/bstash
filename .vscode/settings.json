@@ -2,7 +2,7 @@
 
 {
    "files.associations": {
-      "**/scripts/Makefile.*": "makefile",
+      "**/Makefile.*": "makefile",
    },
    "search.exclude": {
       "**/openssl": true,

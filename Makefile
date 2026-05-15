@@ -61,10 +61,12 @@ link-$(WIN32) := $(objtree)/openssl/libcrypto.lib
 
 include scripts/Makefile.command
 
-ifneq ($(CONFIG_ENABLE_TEST),)
+ifneq ($(or $(CONFIG_ENABLE_TEST),$(printing_db)),)
   include scripts/Makefile.unitest
   include scripts/Makefile.cmdtest
 endif
+
+-include $(lib-y:.o=.d)
 
 $(objtree)/$(name): $(objtree)/command/main/entry
 	cp $< $@
@@ -96,8 +98,6 @@ $(objtree)/%.o: %.c \
 
 command/%_entry.c: | command/%.c
 	./scripts/gen-command-entry.sh $(basename $(*F)) >$@
-
--include $(lib-y:.o=.d)
 
 .force:
 

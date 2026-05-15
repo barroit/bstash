@@ -1,35 +1,41 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-ifneq ($(filter t/unit/ $(objtree)/unitest/%.run,$(MAKECMDGOALS)),)
+ifneq ($(filter $(objtree)/t/unit/run $(objtree)/t/unit/%.run,$(MAKECMDGOALS)),)
   MAKEFLAGS += -s
 endif
 
-CFLAGS += -iquote t/include
+CFLAGS += -iquote t/unit/include
 
-unitest-lib-src := t/lib/main.c
+ut-lib-y := $(objtree)/t/unit/lib/main.o
+ut-unit-y := $(objtree)/t/unit/log.o \
+	     $(objtree)/t/unit/strbuf_alloc.o \
+	     $(objtree)/t/unit/strbuf_prealloc.o
 
-unitest-test-src := t/unit/log.c \
-		    t/unit/strbuf_alloc.c \
-		    t/unit/strbuf_prealloc.c
+ut-y := $(ut-unit-y:.o=.run)
 
-unitest-lib-obj := $(addprefix $(objtree)/,$(unitest-lib-src:.c=.o))
-unitest-test-obj := $(addprefix $(objtree)/,$(unitest-test-src:.c=.o))
+include t/unit/Makefile.deps
 
-unitest-obj := $(unitest-lib-obj) $(unitest-test-obj)
-unitest-y := $(addprefix $(objtree)/unitest/, \
-			 $(notdir $(unitest-test-obj:.o=.run)))
+-include $(ut-unit-y:.o=.d)
 
-.PHONY: t/unit/
+.PHONY: $(objtree)/t/unit/run
 
-t/unit/: $(unitest-y)
+$(objtree)/t/unit/run: $(ut-y)
 
-$(unitest-y):
+$(ut-y):
 
-$(objtree)/unitest/%: $(objtree)/t/unit/%.o \
-		      $(unitest-lib-obj) $(lib-obj) $(link-y)
+$(objtree)/t/unit/%.bin: $(objtree)/t/unit/%.o $(ut-lib-y) $(lib-y) $(link-y)
 	mkdir -p $(@D)
 	$(CC) -fuse-ld=$(LD) $(LDFLAGS) $^ -o $@
 
--include $(unitest-obj:.o=.d)
+$(ut-unit-y):
 
-include scripts/Makefile.unitest_dep
+$(ut-lib-y):
+
+$(objtree)/t/unit/%.run: $(objtree)/t/unit/%.bin
+	printf '%s\n' $(patsubst %.run,%.pass,$(filter %.run,$^)) >$<.deps
+	rm -f $(patsubst %.bin,%.pass,$<)
+	printf '\n== %s\n' $<
+	env time -p $< $<.deps 2>$<.err | ./tapview/tapview && \
+	touch $(patsubst %.bin,%.pass,$<) || true
+	printf '\n'
+	cat $<.err

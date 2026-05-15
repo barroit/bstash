@@ -1,24 +1,22 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-kconfig_dir := $(objtree)/config
 kconfigenv := KCONFIG_FUNCTIONS=kconfig PYTHONPATH=$(CURDIR)/scripts \
-	      KCONFIG_CONFIG=$(kconfig_dir)/dump OBJTREE=$(objtree)
+	      KCONFIG_CONFIG=$(objtree)/.config OBJTREE=$(objtree)
 kconfiglib := $(kconfigenv) ./kconfiglib
 
 .PHONY: menuconfig
 
 menuconfig: bootstrap
-	mkdir -p $(kconfig_dir)
+	mkdir -p $(objtree)/kconfig
 	MENUCONFIG_STYLE=aquatic $(kconfiglib)/menuconfig.py
 
-include/gen/config.h: $(kconfig_dir)/dump
-	mkdir -p include/gen
+include/gen/config.h: $(objtree)/.config
+	mkdir -p $(@D)
 	$(kconfiglib)/genconfig.py --header-path include/gen/config.h
 
-$(kconfig_dir)/deps/auto.conf: $(kconfig_dir)/dump
-	mkdir -p include/gen
-	$(kconfiglib)/genconfig.py --sync-deps $(kconfig_dir)/deps \
+$(objtree)/kconfig/auto.conf: $(objtree)/.config
+	$(kconfiglib)/genconfig.py --sync-deps $(objtree)/kconfig \
 				   --header-path /dev/null
 
-$(kconfig_dir)/dump:
+$(objtree)/.config:
 	$(error No .config found. Run 'make menuconfig' first)

@@ -11,37 +11,38 @@ MAKEFLAGS += -rR
 
 objtree := build
 
+printing_db := $(findstring p,$(firstword $(MAKEFLAGS)))
+non_build_targets := clean distclean bootstrap menuconfig \
+		     include/gen/% include/command/% \
+		     $(objtree)/cmdtree $(objtree)/.commands \
+		     $(objtree)/kconfig/% $(objtree)/probe/%
+
 $(objtree)/$(name):
 
 include scripts/Makefile.probe
 include scripts/Makefile.kconfig
 
-ifeq ($(or $(or $(findstring q,$(firstword $(MAKEFLAGS))), \
-		$(findstring p,$(firstword $(MAKEFLAGS)))), \
-	   $(filter clean distclean bootstrap menuconfig \
-		    include/gen/% include/command/% \
-		    $(objtree)/cmdtree $(objtree)/.commands \
-		    $(kconfig_dir)/% $(probe_dir)/%,$(MAKECMDGOALS)),),)
+ifeq ($(or $(printing_db),$(filter $(non_build_targets),$(MAKECMDGOALS))),)
   # We're compiling/linking.
 
-  include $(probe_dir)/cc/features
-  include $(probe_dir)/ld/features
-  include $(kconfig_dir)/deps/auto.conf
+  include $(objtree)/probe/cc/features
+  include $(objtree)/probe/ld/features
+  include $(objtree)/kconfig/auto.conf
   include $(objtree)/cmdtree
 
-  CC != cat $(probe_dir)/cc/program
-  LD != cat $(probe_dir)/ld/id
+  CC != cat $(objtree)/probe/cc/program
+  LD != cat $(objtree)/probe/ld/id
 
-  UNIX != test $$(cat $(probe_dir)/host/id) != win32 && printf y
-  WIN32 != test $$(cat $(probe_dir)/host/id) = win32 && printf y
+  UNIX != test $$(cat $(objtree)/probe/host/id) != win32 && printf y
+  WIN32 != test $$(cat $(objtree)/probe/host/id) = win32 && printf y
 
-  USE_GCC != test $$(cat $(probe_dir)/cc/id) = gcc && printf y
-  USE_CLANG != test $$(cat $(probe_dir)/cc/id) = clang && printf y
+  USE_GCC != test $$(cat $(objtree)/probe/cc/id) = gcc && printf y
+  USE_CLANG != test $$(cat $(objtree)/probe/cc/id) = clang && printf y
 endif
 
 include scripts/Makefile.flags
 
-lib-y := $(objtree)/sqlite/build/sqlite3.o \
+lib-y := $(objtree)/sqlite/sqlite3.o \
 	 $(objtree)/lib/atexit.o \
 	 $(objtree)/lib/err.o \
 	 $(objtree)/lib/list.o \
@@ -68,17 +69,21 @@ endif
 $(objtree)/$(name): $(objtree)/command/main/entry
 	cp $< $@
 
-$(objtree)/sqlite/build/sqlite3.o: sqlite/build/sqlite3.c
+$(objtree)/sqlite/sqlite3.o: sqlite/build/sqlite3.c
 	mkdir -p $(@D)
 	$(CC) -O3 -w -c $< -o $@
+
+$(objtree)/openssl/libcrypto.a $(objtree)/openssl/libcrypto.lib:
 
 $(objtree)/openssl/libcrypto.%: openssl/build/libcrypto.%
 	mkdir -p $(@D)
 	ln $< $@
 
-sqlite/build/sqlite3.c openssl/build/libcrypto.a openssl/build/libcrypto.lib:
+sqlite/build/% openssl/build/%:
 	$(error No $@ found. \
 		Run 'scripts/build-$(firstword $(subst /, ,$@)).sh' first)
+
+$(lib-y):
 
 $(objtree)/%.o: %.c \
 		include/gen/build.h \

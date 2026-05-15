@@ -1,96 +1,95 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-probe_dir := $(objtree)/probe
+bootstrap: $(objtree)/probe/cc/program \
+	   $(objtree)/probe/cc/id \
+	   $(objtree)/probe/cc/version \
+	   $(objtree)/probe/cc/name \
+	   $(objtree)/probe/cc/features \
+	   $(objtree)/probe/ld/program \
+	   $(objtree)/probe/ld/id \
+	   $(objtree)/probe/ld/version \
+	   $(objtree)/probe/ld/name \
+	   $(objtree)/probe/ld/features \
+	   $(objtree)/probe/repo/name \
+	   $(objtree)/probe/repo/version \
+	   $(objtree)/probe/host/id \
+	   $(objtree)/probe/host/arch \
+	   $(objtree)/probe/host/name
 
-bootstrap: $(probe_dir)/cc/program \
-	   $(probe_dir)/cc/id \
-	   $(probe_dir)/cc/version \
-	   $(probe_dir)/cc/name \
-	   $(probe_dir)/cc/features \
-	   $(probe_dir)/ld/program \
-	   $(probe_dir)/ld/id \
-	   $(probe_dir)/ld/version \
-	   $(probe_dir)/ld/name \
-	   $(probe_dir)/ld/features \
-	   $(probe_dir)/repo/name \
-	   $(probe_dir)/repo/version \
-	   $(probe_dir)/host/id \
-	   $(probe_dir)/host/arch \
-	   $(probe_dir)/host/name
-
-include/gen/build.h: $(probe_dir)/repo/name $(probe_dir)/repo/version \
-		     $(probe_dir)/host/id $(probe_dir)/host/arch \
-		     $(probe_dir)/host/name
+include/gen/build.h: $(objtree)/probe/repo/name $(objtree)/probe/repo/version \
+		     $(objtree)/probe/host/id $(objtree)/probe/host/arch \
+		     $(objtree)/probe/host/name
 	mkdir -p $(@D)
 	printf '%s\n' $^ | ./scripts/gen-build_h.sh -e s,[^/]\\+/repo,repo, >$@
 
-include/gen/features.h: $(probe_dir)/cc/features $(probe_dir)/ld/features
+include/gen/features.h: $(objtree)/probe/cc/features \
+			$(objtree)/probe/ld/features
 	mkdir -p $(@D)
 	cat $^ | ./scripts/gen-features_h.sh >$@
 
-$(probe_dir)/repo/name:
+$(objtree)/probe/repo/name:
 	mkdir -p $(@D)
 	printf '%s\n' $(name) >$@
 
-$(probe_dir)/repo/version:
+$(objtree)/probe/repo/version:
 	mkdir -p $(@D)
 	printf '%s\n' $(version) >$@
 
-$(probe_dir)/host/id:
+$(objtree)/probe/host/id:
 	mkdir -p $(@D)
 	python3 -c 'import sys; print(sys.platform)' >$@
 
-$(probe_dir)/host/arch:
+$(objtree)/probe/host/arch:
 	mkdir -p $(@D)
 	python3 -c 'import platform; print(platform.machine())' >$@
 
-$(probe_dir)/host/name:
+$(objtree)/probe/host/name:
 	mkdir -p $(@D)
 	python3 -c 'import platform; print(platform.system())' >$@
 
-$(probe_dir)/cc/program: $(probe_dir)/cc/.dump
+$(objtree)/probe/cc/program: $(objtree)/probe/cc/.dump
 	cut -f1 $< >$@
 
-$(probe_dir)/cc/id: $(probe_dir)/cc/.dump
+$(objtree)/probe/cc/id: $(objtree)/probe/cc/.dump
 	cut -f2 $< >$@
 
-$(probe_dir)/cc/version: $(probe_dir)/cc/.dump
+$(objtree)/probe/cc/version: $(objtree)/probe/cc/.dump
 	cut -f3 $< >$@
 
-$(probe_dir)/cc/name: $(probe_dir)/cc/.dump
+$(objtree)/probe/cc/name: $(objtree)/probe/cc/.dump
 	cut -f4 $< >$@
 
-$(probe_dir)/cc/.dump: $(probe_dir)/tools
+$(objtree)/probe/cc/.dump: $(objtree)/probe/tools
 	mkdir -p $(@D)
 	sed -n 1p $< >$@
 
-$(probe_dir)/cc/features:
+$(objtree)/probe/cc/features:
 
-$(probe_dir)/ld/program: $(probe_dir)/ld/.dump
+$(objtree)/probe/ld/program: $(objtree)/probe/ld/.dump
 	cut -f1 $< >$@
 
-$(probe_dir)/ld/id: $(probe_dir)/ld/.dump
+$(objtree)/probe/ld/id: $(objtree)/probe/ld/.dump
 	cut -f2 $< >$@
 
-$(probe_dir)/ld/version: $(probe_dir)/ld/.dump
+$(objtree)/probe/ld/version: $(objtree)/probe/ld/.dump
 	cut -f3 $< >$@
 
-$(probe_dir)/ld/name: $(probe_dir)/ld/.dump
+$(objtree)/probe/ld/name: $(objtree)/probe/ld/.dump
 	cut -f4 $< >$@
 
-$(probe_dir)/ld/.dump: $(probe_dir)/tools
+$(objtree)/probe/ld/.dump: $(objtree)/probe/tools
 	mkdir -p $(@D)
 	sed -n 2p $< >$@
 
-$(probe_dir)/ld/features: $(probe_dir)/cc/program $(probe_dir)/ld/id
+$(objtree)/probe/ld/features: $(objtree)/probe/cc/program $(objtree)/probe/ld/id
 
-$(probe_dir)/tools:
+$(objtree)/probe/tools:
 	mkdir -p $(@D)
 	trap 'rm -f .tmp-$$$$' EXIT && \
 	./scripts/probe-tools.sh >.tmp-$$$$ && \
 	mv .tmp-$$$$ $@
 
-$(probe_dir)/%/features: $(probe_dir)/%/program
+$(objtree)/probe/%/features: $(objtree)/probe/%/program
 	trap 'rm -f .tmp-$$$$' EXIT && \
 	./scripts/probe-$*-features.sh $$(cat $^) | \
 	sort >.tmp-$$$$ && \

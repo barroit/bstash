@@ -25,8 +25,6 @@ t/unit/: $(unitest-y)
 
 $(unitest-y):
 
-.SECONDARY: $(unitest-y:.run=)
-
 $(objtree)/unitest/%: $(objtree)/t/unit/%.o \
 		      $(unitest-lib-obj) $(lib-obj) $(link-y)
 	mkdir -p $(@D)

@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-int cmd_main_dump(int argc, const char **argv)
+int cmd_dump(int argc, const char **argv)
 {
 	puts(*argv);
 	return 0;

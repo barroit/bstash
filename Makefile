@@ -75,15 +75,13 @@ sqlite/build/sqlite3.c openssl/build/libcrypto.a openssl/build/libcrypto.lib:
 		Run 'scripts/build-$(firstword $(subst /, ,$@)).sh' first)
 
 $(objtree)/%.o: %.c \
-		include/gen/build.h \
-		include/gen/config.h \
-		include/gen/features.h
+		include/gen/build.h include/gen/config.h include/gen/features.h
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(addprefix -include ,$(filter include/gen/%,$^)) \
 	      -c $< -o $@
 
 %_entry.c: %.c
-	./scripts/gen-command-entry.sh $(shell printf '%s' $* | tr / _ ) >$@
+	./scripts/gen-command-entry.sh $(basename $(*F)) >$@
 
 -include $(lib-y:.o=.d)
 

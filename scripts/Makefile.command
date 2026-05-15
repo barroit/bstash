@@ -6,7 +6,7 @@ $(objtree)/$(name)/%/entry: $(lib-y) $(objtree)/cmdtree
 
 include/%/d.h:
 	mkdir -p $(@D)
-	printf '%s\n' $^ | sort | ./scripts/gen-d_h.sh $(basename $(<F)) >$@
+	printf '%s\n' $^ | sort | ./scripts/gen-d_h.sh $*/ >$@
 
 $(objtree)/cmdtree: $(objtree)/.commands
 	OBJTREE=$(objtree) ./scripts/build-cmdtree.py main.c >$@

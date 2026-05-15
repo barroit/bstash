@@ -3,7 +3,7 @@
  * Copyright 2026 Jiamu Sun <39@barroit.sh>
  */
 
-int cmd_main_search(int argc, const char **argv)
+int cmd_search(int argc, const char **argv)
 {
 	return 0;
 }

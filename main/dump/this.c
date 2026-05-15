@@ -3,8 +3,6 @@
  * Copyright 2026 Jiamu Sun <39@barroit.sh>
  */
 
-#include "main/dump/d.h"
-
 int cmd_dump_this(int argc, const char **argv)
 {
 	return 0;

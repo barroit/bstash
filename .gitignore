@@ -4,9 +4,8 @@
 /deps
 /scripts/__pycache__
 
-/main_entry.c
-/main/**/*_entry.c
+/command/**/*_entry.c
 /include/gen/*
-/include/main/*
+/include/command/*
 
 /jom

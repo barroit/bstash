@@ -11,7 +11,7 @@ MAKEFLAGS += -rR
 
 objtree := build
 
-$(objtree)/$(name)/main/entry:
+$(objtree)/$(name):
 
 include scripts/Makefile.probe
 include scripts/Makefile.kconfig
@@ -19,7 +19,8 @@ include scripts/Makefile.kconfig
 ifeq ($(or $(or $(findstring q,$(firstword $(MAKEFLAGS))), \
 		$(findstring p,$(firstword $(MAKEFLAGS)))), \
 	   $(filter clean distclean bootstrap menuconfig \
-		    include/gen/% include/main/% \
+		    include/gen/% include/command/% \
+		    $(objtree)/cmdtree $(objtree)/.commands \
 		    $(kconfig_dir)/% $(probe_dir)/%,$(MAKECMDGOALS)),),)
   # We're compiling/linking.
 
@@ -64,7 +65,7 @@ ifneq ($(CONFIG_ENABLE_TEST),)
   include scripts/Makefile.cmdtest
 endif
 
-$(objtree)/$(name): $(objtree)/$(name)/main/entry
+$(objtree)/$(name): $(objtree)/command/main/entry
 	cp $< $@
 
 $(objtree)/sqlite/build/sqlite3.o: sqlite/build/sqlite3.c
@@ -80,11 +81,11 @@ $(objtree)/%.o: %.c \
 		include/gen/config.h \
 		include/gen/features.h
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(addprefix -include , \
-				    $(filter include/gen/% include/main/%,$^)) \
+	$(CC) $(CFLAGS) $(addprefix -include ,$(filter include/gen/% \
+						       include/command/%,$^)) \
 	      -c $< -o $@
 
-%_entry.c: | %.c
+command/%_entry.c: | command/%.c
 	./scripts/gen-command-entry.sh $(basename $(*F)) >$@
 
 -include $(lib-y:.o=.d)
@@ -94,11 +95,14 @@ $(objtree)/%.o: %.c \
 .PHONY: clean distclean
 
 distclean: clean
-	rm -rf build include/gen include/main
+	rm -rf build include/gen include/command
 
 clean:
-	find $(objtree) \( -name '*.o' -o -name '*.d' \) ! -name sqlite3.o \
-			-exec rm {} + 2>/dev/null || true
-	find include/main include/gen -type f -exec rm {} + 2>/dev/null || true
-	rm -f $(objtree)/.commands $(objtree)/cmdtree $(objtree)/unitest/*
-	rm -rf $(objtree)/$(name)
+	{ \
+		find $(objtree) \
+		     \( -name '*.o' -o -name '*.d' -o -name 'entry' \) \
+		     ! -name sqlite3.o -exec rm {} + ; \
+		find include/command include/gen -type f -exec rm {} + ; \
+		find command -name '*_entry.c' -exec rm {} + ; \
+	} 2>/dev/null
+	rm -f $(objtree)/.commands $(objtree)/cmdtree $(objtree)/$(name)

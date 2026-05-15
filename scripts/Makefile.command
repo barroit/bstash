@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-$(objtree)/$(name)/%/entry: $(lib-y) $(link-y)
+$(objtree)/command/%/entry: $(lib-y) $(link-y)
 	mkdir -p $(@D)
 	$(CC) $(LDFLAGS) -fuse-ld=$(LD) $(filter %.o %.a %.lib,$^) -o $@
 
-include/%/d.h:
+include/command/%/d.h:
 	mkdir -p $(@D)
 	printf '%s\n' $| | sort | ./scripts/gen-d_h.sh $*/ >$@
 
 $(objtree)/cmdtree: $(objtree)/.commands
-	OBJTREE=$(objtree) ./scripts/build-cmdtree.py main.c >$@
+	OBJTREE=$(objtree) ./scripts/build-cmdtree.py command/main.c >$@
 
 $(objtree)/.commands: .force
 	@mkdir -p $(@D)
 	@trap 'rm -f .tmp-$$$$' EXIT && \
-	find main -type f | sort >.tmp-$$$$ && \
+	find command -type f | sort >.tmp-$$$$ && \
 	test -f $@ && diff .tmp-$$$$ $@ >/dev/null || \
 	{ mv .tmp-$$$$ $@ && touch $@; }

@@ -74,7 +74,7 @@ def print_rules(deps):
 			continue
 
 		if first:
-			print_no_lf(f"$(objtree)/$(name)/{item}/entry:")
+			print_no_lf(f"$(objtree)/{item}/entry:")
 			print_no_lf(f" $(objtree)/{item}.o")
 			print_no_lf(f" $(objtree)/{item}_entry.o")
 		else:
@@ -83,7 +83,7 @@ def print_rules(deps):
 		first = 0
 
 	for item in sub:
-		print_no_lf(f" $(objtree)/$(name)/{item}/entry")
+		print_no_lf(f" $(objtree)/{item}/entry")
 
 	print('\n')
 

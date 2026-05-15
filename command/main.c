@@ -5,7 +5,6 @@
 
 #include "atexit.h"
 #include "err.h"
-#include "main/d.h"
 #include "parse_argv.h"
 #include "stdio.h"
 

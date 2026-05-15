@@ -36,7 +36,7 @@ def print_headers(deps):
 			continue
 
 		if first:
-			print_no_lf(f"include/{item}/d.h:")
+			print_no_lf(f"include/{item}/d.h: |")
 		else:
 			print_no_lf(f" {item}")
 

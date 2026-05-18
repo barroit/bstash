@@ -13,7 +13,7 @@ objtree := build
 
 printing_db := $(findstring p,$(firstword $(MAKEFLAGS)))
 non_build_targets := clean distclean bootstrap menuconfig \
-		     include/gen/% include/command/% \
+		     include/generated/% include/command/% \
 		     $(objtree)/cmdtree $(objtree)/.commands \
 		     $(objtree)/kconfig/% $(objtree)/probe/%
 
@@ -88,11 +88,11 @@ sqlite/build/% openssl/build/%:
 $(lib-y):
 
 $(objtree)/%.o: %.c \
-		include/gen/build.h \
-		include/gen/config.h \
-		include/gen/features.h
+		include/generated/build.h \
+		include/generated/config.h \
+		include/generated/features.h
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(addprefix -include ,$(filter include/gen/% \
+	$(CC) $(CFLAGS) $(addprefix -include ,$(filter include/generated/% \
 						       include/command/%,$^)) \
 	      -c $< -o $@
 
@@ -104,14 +104,14 @@ command/%_entry.c: | command/%.c
 .PHONY: clean distclean
 
 distclean: clean
-	rm -rf build include/gen include/command
+	rm -rf build include/generated include/command
 
 clean:
 	{ \
 		find $(objtree)/lib $(objtree)/command \
 		     \( -name '*.o' -o -name '*.d' -o -name 'entry' \) \
 		     -exec rm {} + ; \
-		find include/command include/gen -type f -exec rm {} + ; \
+		find include/command include/generated -type f -exec rm {} + ; \
 		find command -name '*_entry.c' -exec rm {} + ; \
 	} 2>/dev/null
 	rm -f $(objtree)/.commands $(objtree)/cmdtree $(objtree)/$(name)

@@ -10,9 +10,9 @@ menuconfig: bootstrap
 	mkdir -p $(objtree)/kconfig
 	MENUCONFIG_STYLE=aquatic $(kconfiglib)/menuconfig.py
 
-include/gen/config.h: $(objtree)/.config
+include/generated/config.h: $(objtree)/.config
 	mkdir -p $(@D)
-	$(kconfiglib)/genconfig.py --header-path include/gen/config.h
+	$(kconfiglib)/genconfig.py --header-path include/generated/config.h
 
 $(objtree)/kconfig/auto.conf: $(objtree)/.config
 	$(kconfiglib)/genconfig.py --sync-deps $(objtree)/kconfig \

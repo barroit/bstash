@@ -24,10 +24,10 @@
       "${workspaceFolder}/openssl/build/include",
    ],
    "C_Cpp.default.forcedInclude": [
-      "${workspaceFolder}/include/gen/build.h",
-      "${workspaceFolder}/include/gen/commands.h",
-      "${workspaceFolder}/include/gen/config.h",
-      "${workspaceFolder}/include/gen/features.h",
-      "${workspaceFolder}/include/gen/unitest.h",
+      "${workspaceFolder}/include/generated/build.h",
+      "${workspaceFolder}/include/generated/commands.h",
+      "${workspaceFolder}/include/generated/config.h",
+      "${workspaceFolder}/include/generated/features.h",
+      "${workspaceFolder}/include/generated/unitest.h",
    ],
 }

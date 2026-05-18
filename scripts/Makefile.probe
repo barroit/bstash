@@ -16,13 +16,13 @@ bootstrap: $(objtree)/probe/cc/program \
 	   $(objtree)/probe/host/arch \
 	   $(objtree)/probe/host/name
 
-include/gen/build.h: $(objtree)/probe/repo/name $(objtree)/probe/repo/version \
+include/generated/build.h: $(objtree)/probe/repo/name $(objtree)/probe/repo/version \
 		     $(objtree)/probe/host/id $(objtree)/probe/host/arch \
 		     $(objtree)/probe/host/name
 	mkdir -p $(@D)
 	printf '%s\n' $^ | ./scripts/gen-build_h.sh -e s,[^/]\\+/repo,repo, >$@
 
-include/gen/features.h: $(objtree)/probe/cc/features \
+include/generated/features.h: $(objtree)/probe/cc/features \
 			$(objtree)/probe/ld/features
 	mkdir -p $(@D)
 	cat $^ | ./scripts/gen-features_h.sh >$@

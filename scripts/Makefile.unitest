@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-ifneq ($(filter $(objtree)/t/unit/run $(objtree)/t/unit/%.run,$(MAKECMDGOALS)),)
+ifneq ($(filter build/t/unit/run build/t/unit/%.run,$(MAKECMDGOALS)),)
   MAKEFLAGS += -s
 endif
 
 CFLAGS += -iquote t/unit/include
 
-ut-lib-y := $(objtree)/t/unit/lib/main.o
-ut-unit-y := $(objtree)/t/unit/log.o \
-	     $(objtree)/t/unit/strbuf_alloc.o \
-	     $(objtree)/t/unit/strbuf_prealloc.o
+ut-lib-y := build/t/unit/lib/main.o
+ut-unit-y := build/t/unit/log.o \
+	     build/t/unit/strbuf_alloc.o \
+	     build/t/unit/strbuf_prealloc.o
 
 ut-y := $(ut-unit-y:.o=.run)
 
@@ -17,13 +17,13 @@ include t/unit/Makefile.deps
 
 -include $(ut-unit-y:.o=.d)
 
-.PHONY: $(objtree)/t/unit/run
+.PHONY: build/t/unit/run
 
-$(objtree)/t/unit/run: $(ut-y)
+build/t/unit/run: $(ut-y)
 
 $(ut-y):
 
-$(objtree)/t/unit/%.bin: $(objtree)/t/unit/%.o $(ut-lib-y) $(lib-y) $(link-y)
+build/t/unit/%.bin: build/t/unit/%.o $(ut-lib-y) $(lib-y) $(link-y)
 	mkdir -p $(@D)
 	$(CC) -fuse-ld=$(LD) $(LDFLAGS) $^ -o $@
 
@@ -31,7 +31,7 @@ $(ut-unit-y):
 
 $(ut-lib-y):
 
-$(objtree)/t/unit/%.run: $(objtree)/t/unit/%.bin
+build/t/unit/%.run: build/t/unit/%.bin
 	printf '%s\n' $(patsubst %.run,%.pass,$(filter %.run,$^)) >$<.deps
 	rm -f $(patsubst %.bin,%.pass,$<)
 	printf '\n== %s\n' $<

@@ -1,95 +1,95 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-bootstrap: $(objtree)/probe/cc/program \
-	   $(objtree)/probe/cc/id \
-	   $(objtree)/probe/cc/version \
-	   $(objtree)/probe/cc/name \
-	   $(objtree)/probe/cc/features \
-	   $(objtree)/probe/ld/program \
-	   $(objtree)/probe/ld/id \
-	   $(objtree)/probe/ld/version \
-	   $(objtree)/probe/ld/name \
-	   $(objtree)/probe/ld/features \
-	   $(objtree)/probe/repo/name \
-	   $(objtree)/probe/repo/version \
-	   $(objtree)/probe/host/id \
-	   $(objtree)/probe/host/arch \
-	   $(objtree)/probe/host/name
+bootstrap: build/probe/cc/program \
+	   build/probe/cc/id \
+	   build/probe/cc/version \
+	   build/probe/cc/name \
+	   build/probe/cc/features \
+	   build/probe/ld/program \
+	   build/probe/ld/id \
+	   build/probe/ld/version \
+	   build/probe/ld/name \
+	   build/probe/ld/features \
+	   build/probe/repo/name \
+	   build/probe/repo/version \
+	   build/probe/host/id \
+	   build/probe/host/arch \
+	   build/probe/host/name
 
-include/generated/build.h: $(objtree)/probe/repo/name $(objtree)/probe/repo/version \
-		     $(objtree)/probe/host/id $(objtree)/probe/host/arch \
-		     $(objtree)/probe/host/name
+include/generated/build.h: build/probe/repo/name build/probe/repo/version \
+		     build/probe/host/id build/probe/host/arch \
+		     build/probe/host/name
 	mkdir -p $(@D)
 	printf '%s\n' $^ | ./scripts/gen-build_h.sh -e s,[^/]\\+/repo,repo, >$@
 
-include/generated/features.h: $(objtree)/probe/cc/features \
-			$(objtree)/probe/ld/features
+include/generated/features.h: build/probe/cc/features \
+			build/probe/ld/features
 	mkdir -p $(@D)
 	cat $^ | ./scripts/gen-features_h.sh >$@
 
-$(objtree)/probe/repo/name:
+build/probe/repo/name:
 	mkdir -p $(@D)
 	printf '%s\n' $(name) >$@
 
-$(objtree)/probe/repo/version:
+build/probe/repo/version:
 	mkdir -p $(@D)
 	printf '%s\n' $(version) >$@
 
-$(objtree)/probe/host/id:
+build/probe/host/id:
 	mkdir -p $(@D)
 	python3 -c 'import sys; print(sys.platform)' >$@
 
-$(objtree)/probe/host/arch:
+build/probe/host/arch:
 	mkdir -p $(@D)
 	python3 -c 'import platform; print(platform.machine())' >$@
 
-$(objtree)/probe/host/name:
+build/probe/host/name:
 	mkdir -p $(@D)
 	python3 -c 'import platform; print(platform.system())' >$@
 
-$(objtree)/probe/cc/program: $(objtree)/probe/cc/.dump
+build/probe/cc/program: build/probe/cc/.dump
 	cut -f1 $< >$@
 
-$(objtree)/probe/cc/id: $(objtree)/probe/cc/.dump
+build/probe/cc/id: build/probe/cc/.dump
 	cut -f2 $< >$@
 
-$(objtree)/probe/cc/version: $(objtree)/probe/cc/.dump
+build/probe/cc/version: build/probe/cc/.dump
 	cut -f3 $< >$@
 
-$(objtree)/probe/cc/name: $(objtree)/probe/cc/.dump
+build/probe/cc/name: build/probe/cc/.dump
 	cut -f4 $< >$@
 
-$(objtree)/probe/cc/.dump: $(objtree)/probe/tools
+build/probe/cc/.dump: build/probe/tools
 	mkdir -p $(@D)
 	sed -n 1p $< >$@
 
-$(objtree)/probe/cc/features:
+build/probe/cc/features:
 
-$(objtree)/probe/ld/program: $(objtree)/probe/ld/.dump
+build/probe/ld/program: build/probe/ld/.dump
 	cut -f1 $< >$@
 
-$(objtree)/probe/ld/id: $(objtree)/probe/ld/.dump
+build/probe/ld/id: build/probe/ld/.dump
 	cut -f2 $< >$@
 
-$(objtree)/probe/ld/version: $(objtree)/probe/ld/.dump
+build/probe/ld/version: build/probe/ld/.dump
 	cut -f3 $< >$@
 
-$(objtree)/probe/ld/name: $(objtree)/probe/ld/.dump
+build/probe/ld/name: build/probe/ld/.dump
 	cut -f4 $< >$@
 
-$(objtree)/probe/ld/.dump: $(objtree)/probe/tools
+build/probe/ld/.dump: build/probe/tools
 	mkdir -p $(@D)
 	sed -n 2p $< >$@
 
-$(objtree)/probe/ld/features: $(objtree)/probe/cc/program $(objtree)/probe/ld/id
+build/probe/ld/features: build/probe/cc/program build/probe/ld/id
 
-$(objtree)/probe/tools:
+build/probe/tools:
 	mkdir -p $(@D)
 	trap 'rm -f .tmp-$$$$' EXIT && \
 	./scripts/probe-tools.sh >.tmp-$$$$ && \
 	mv .tmp-$$$$ $@
 
-$(objtree)/probe/%/features: $(objtree)/probe/%/program
+build/probe/%/features: build/probe/%/program
 	trap 'rm -f .tmp-$$$$' EXIT && \
 	./scripts/probe-$*-features.sh $$(cat $^) | \
 	sort >.tmp-$$$$ && \

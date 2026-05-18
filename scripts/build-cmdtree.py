@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from os import environ, scandir
-from sys import argv, stderr
+from os import scandir
+from sys import argv
 
 def print_no_lf(*args):
 	print(*args, end = '')
@@ -55,9 +55,9 @@ def print_object_deps(deps):
 		if first:
 			header = item
 
-			print_no_lf(f"$(objtree)/{item}.o")
+			print_no_lf(f"build/{item}.o")
 		else:
-			print_no_lf(f" $(objtree)/{item[0:-2]}.o")
+			print_no_lf(f" build/{item[0:-2]}.o")
 
 		first = 0
 
@@ -74,16 +74,16 @@ def print_rules(deps):
 			continue
 
 		if first:
-			print_no_lf(f"$(objtree)/{item}/entry:")
-			print_no_lf(f" $(objtree)/{item}.o")
-			print_no_lf(f" $(objtree)/{item}_entry.o")
+			print_no_lf(f"build/{item}/entry:")
+			print_no_lf(f" build/{item}.o")
+			print_no_lf(f" build/{item}_entry.o")
 		else:
-			print_no_lf(f" $(objtree)/{item[0:-2]}.o")
+			print_no_lf(f" build/{item[0:-2]}.o")
 
 		first = 0
 
 	for item in sub:
-		print_no_lf(f" $(objtree)/{item}/entry")
+		print_no_lf(f" build/{item}/entry")
 
 	print('\n')
 

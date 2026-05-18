@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-$(objtree)/t/unit/strbuf_alloc.run: $(objtree)/t/unit/log.run
+build/t/unit/strbuf_alloc.run: build/t/unit/log.run
 
-$(objtree)/t/unit/log.run: $(objtree)/t/unit/strbuf_prealloc.run
+build/t/unit/log.run: build/t/unit/strbuf_prealloc.run

@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from os import environ
-
 def read_features(filename):
 	file = open(filename)
 	lines = file.read().splitlines()
@@ -17,29 +15,27 @@ def first_line(filename):
 	file.close()
 	return line
 
-objtree = environ['OBJTREE']
-
-cc_features = read_features(f"{objtree}/probe/cc/features")
-ld_features = read_features(f"{objtree}/probe/ld/features")
+cc_features = read_features('build/probe/cc/features')
+ld_features = read_features('build/probe/ld/features')
 
 def warn_off(kconf, name):
 	kconf.warn = False
 	return ''
 
 def host_id(kconf, name):
-	return first_line(f"{objtree}/probe/host/id")
+	return first_line('build/probe/host/id')
 
 def host_arch(kconf, name):
-	return first_line(f"{objtree}/probe/host/arch")
+	return first_line('build/probe/host/arch')
 
 def host_name(kconf, name):
-	return first_line(f"{objtree}/probe/host/name")
+	return first_line('build/probe/host/name')
 
 def repo_name(kconf, name):
-	return first_line(f"{objtree}/probe/repo/name")
+	return first_line('build/probe/repo/name')
 
 def repo_version(kconf, name):
-	return first_line(f"{objtree}/probe/repo/version")
+	return first_line('build/probe/repo/version')
 
 def cc_has_feature(kconf, name, feature):
 	return 'y' if f"CC_HAS_{feature}" in cc_features else 'n'

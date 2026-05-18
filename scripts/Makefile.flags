@@ -6,9 +6,9 @@ LDFLAGS :=
 CFLAGS += -std=gnu17
 
 ifneq ($(USE_CLANG),)
-  LDFLAGS += --ld-path=$$(cat $(objtree)/probe/ld/program)
+  LDFLAGS += --ld-path=$$(cat build/probe/ld/program)
 else ifneq ($(USE_GCC),)
-  LDFLAGS += -B$(shell dirname $$(cat $(objtree)/probe/ld/program))
+  LDFLAGS += -B$(shell dirname $$(cat build/probe/ld/program))
 endif
 
 ifneq ($(CONFIG_CC_OPTIMIZE_NONE),)

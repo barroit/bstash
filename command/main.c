@@ -16,7 +16,7 @@ int cmd_main(int argc, const char **argv)
 	atexit_setup();
 
 	// argc = pa_parse_args(argc, argv, , PA_STOP_BARE);
-	puts(argv[0]);
+	puts(CONFIG_NULL_DEVICE);
 
 	return 0;
 }

@@ -87,6 +87,24 @@ def print_rules(deps):
 
 	print('\n')
 
+def print_command_object_y(deps):
+	first = 1
+
+	for item in deps:
+		if isinstance(item, list):
+			print_command_object_y(item)
+			continue
+
+		if first:
+			print_no_lf('cmd-obj-y +=')
+			print_no_lf(f" build/{item}.o")
+		else:
+			print_no_lf(f" build/{item[0:-2]}.o")
+
+		first = 0
+
+	print('\n')
+
 main = argv[1]
 init = main.split('.')[0]
 deps = find_deps(init)
@@ -100,3 +118,5 @@ print_headers(deps)
 print_object_deps(deps)
 
 print_rules(deps)
+
+print_command_object_y(deps)

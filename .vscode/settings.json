@@ -3,6 +3,7 @@
 {
    "files.associations": {
       "**/Makefile.*": "makefile",
+      "**/*.awk": "plaintext",
    },
    "search.exclude": {
       "**/openssl": true,

@@ -23,7 +23,7 @@ build/t/unit/run: $(ut-y)
 
 $(ut-y):
 
-build/t/unit/%.bin: build/t/unit/%.o $(ut-lib-y) $(lib-y) $(link-y)
+build/t/unit/%.bin: build/t/unit/%.o $(ut-lib-y) $(obj-y) $(link-y)
 	mkdir -p $(@D)
 	$(CC) -fuse-ld=$(LD) $(LDFLAGS) $^ -o $@
 

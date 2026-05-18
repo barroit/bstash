@@ -71,6 +71,8 @@ CFLAGS += -iquote include \
 	  -iquote openssl/include \
 	  -iquote openssl/build/include
 
+CFLAGS += -include include/generated/config.h
+
 CFLAGS += -D_GNU_SOURCE
 
 ifeq ($(CONFIG_ENABLE_DEBUG),)

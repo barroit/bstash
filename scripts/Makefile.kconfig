@@ -6,16 +6,10 @@ kconfiglib := KCONFIG_FUNCTIONS=kconfig PYTHONPATH=$(CURDIR)/scripts \
 .PHONY: menuconfig
 
 menuconfig: bootstrap
-	mkdir -p build/kconfig
 	MENUCONFIG_STYLE=aquatic $(kconfiglib)/menuconfig.py
+	mkdir -p include/generated
+	$(kconfiglib)/genconfig.py --header-path include/generated/config.h \
+				   --sync-deps include/config
 
-include/generated/config.h: build/.config
-	mkdir -p $(@D)
-	$(kconfiglib)/genconfig.py --header-path include/generated/config.h
-
-build/kconfig/auto.conf: build/.config
-	$(kconfiglib)/genconfig.py --sync-deps build/kconfig \
-				   --header-path /dev/null
-
-build/.config:
+include/config/auto.conf:
 	$(error No .config found. Run 'make menuconfig' first)

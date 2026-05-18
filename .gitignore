@@ -5,7 +5,8 @@
 /scripts/__pycache__
 
 /command/**/*_entry.c
-/include/generated/*
 /include/command/*
+/include/config/*
+/include/generated/*
 
 /jom

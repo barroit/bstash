@@ -98,6 +98,7 @@ def print_command_object_y(deps):
 		if first:
 			print_no_lf('cmd-obj-y +=')
 			print_no_lf(f" build/{item}.o")
+			print_no_lf(f" build/{item}_entry.o")
 		else:
 			print_no_lf(f" build/{item[0:-2]}.o")
 

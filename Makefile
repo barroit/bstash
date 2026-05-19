@@ -94,7 +94,9 @@ command/%_entry.c: | command/%.c
 	./scripts/gen-command-entry.sh $(basename $(*F)) >$@
 
 build/%.d1: build/%.d
-	./scripts/fixconfig.awk -v src=$*.c <$< >$@
+	./scripts/fixconfig.sh $(shell grep .h: $< | tr -d : | \
+				       sed s,include/generated/config.h,,) \
+			       $*.c <$< >$@
 
 .force:
 

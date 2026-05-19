@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-build/command/%/entry: $(obj-y) $(link-y)
+build/command/%/entry: $(lib-obj-y) $(link-y)
 	mkdir -p $(@D)
 	$(CC) $(LDFLAGS) -fuse-ld=$(LD) $(filter %.o %.a %.lib,$^) \
 	      -o $@

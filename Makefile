@@ -36,18 +36,18 @@ endif
 
 include scripts/Makefile.flags
 
-obj-y += build/sqlite/sqlite3.o \
-	 build/lib/atexit.o \
-	 build/lib/err.o \
-	 build/lib/list.o \
-	 build/lib/log.o \
-	 build/lib/parse_argv.o \
-	 build/lib/rio.o \
-	 build/lib/strbuf.o \
-	 build/lib/xalloc.o
+lib-obj-y += build/sqlite/sqlite3.o \
+	     build/lib/atexit.o \
+	     build/lib/err.o \
+	     build/lib/list.o \
+	     build/lib/log.o \
+	     build/lib/parse_argv.o \
+	     build/lib/rio.o \
+	     build/lib/strbuf.o \
+	     build/lib/xalloc.o
 
 ifeq ($(CC_HAS_REALLOCARRAY),)
-  obj-y += build/lib/reallocarray.o
+  lib-obj-y += build/lib/reallocarray.o
 endif
 
 link-$(UNIX) := build/openssl/libcrypto.a
@@ -62,7 +62,7 @@ ifeq ($(findstring p,$(firstword $(MAKEFLAGS))),)
   endif
 endif
 
--include $(obj-y:.o=.d1)
+-include $(lib-obj-y:.o=.d1)
 -include $(cmd-obj-y:.o=.d1)
 
 build/$(name): build/command/main/entry
@@ -82,7 +82,7 @@ sqlite/build/% openssl/build/%:
 	$(error No $@ found. \
 		Run 'scripts/build-$(firstword $(subst /, ,$@)).sh' first)
 
-$(obj-y):
+$(lib-obj-y):
 
 build/%.o: %.c include/generated/build.h include/generated/features.h
 	mkdir -p $(@D)
